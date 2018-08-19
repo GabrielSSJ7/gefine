@@ -1,0 +1,3 @@
+rootProject.name = 'gefine'
+
+include ':app'
