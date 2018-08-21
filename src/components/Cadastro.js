@@ -83,7 +83,6 @@ class Cadastro extends Component {
 }
 
 const mapStateToProps = state => {
-    console.log(state);
     return{   
         nome: state.AutenticacaoReducer.nome,
         email: state.AutenticacaoReducer.email,

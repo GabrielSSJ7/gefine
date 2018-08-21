@@ -7,7 +7,9 @@ import Cadastro from './components/Cadastro';
 import Principal from './components/Principal';
 import SplashScreen from './components/SplashScreen';
 import GastosMeses from './components/GastosMeses';
-import Mes from './components/Mes';
+import Anos from './components/Anos';
+import ExtratoMes from './components/ExtratoMes';
+
 
 export default class Routes extends Component {
    render() {
@@ -21,7 +23,8 @@ export default class Routes extends Component {
                     renderLeftButton={<View></View>} />
                 <Scene key="splashScreen" component={SplashScreen} hideNavBar={true} initial/>
                 <Scene key="gastosMeses" component={GastosMeses} hideNavBar={false} />
-                <Scene key="mes" component={Mes} hideNavBar={false} />
+                <Scene key="anos" component={Anos} hideNavBar={false} />
+                <Scene key="extratoMes"  component={ExtratoMes} hideNavBar={false} />
             </Stack>
         </Router> 
         );

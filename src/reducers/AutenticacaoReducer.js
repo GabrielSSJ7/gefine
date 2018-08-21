@@ -7,7 +7,7 @@ import {
     AUTENTICAR_USUARIO_ERRO,
     AUTENTICAR_USUARIO_SUCESSO,
     LOGIN_EM_ANDAMENTO,
-    CADASTRO_EM_ANDAMENTO
+    CADASTRO_EM_ANDAMENTO,
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -39,7 +39,7 @@ export default (state = INITIAL_STATE, action ) => {
             return { ...state, autenticar_usuario_txt_erro: action.payload, login_em_andamento: false }
 
         case AUTENTICAR_USUARIO_SUCESSO:
-            return { ...state, login_em_andamento: false }
+            return { ...state, ...INITIAL_STATE }
         
         case LOGIN_EM_ANDAMENTO:
             return  { login_em_andamento: true }
@@ -47,6 +47,7 @@ export default (state = INITIAL_STATE, action ) => {
         case CADASTRO_EM_ANDAMENTO:
             return { cadastro_em_andamento: true }
 
-        default: return { state }
+
+        default: return state;
     }
 }

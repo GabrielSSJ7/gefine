@@ -15,7 +15,7 @@ import firebase from 'firebase';
 import b64 from 'base-64';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import { gastosFetch } from '../actions/AppActions';
+import { gastosFetch, logOutApp } from '../actions/AppActions';
 import { Actions } from 'react-native-router-flux';
 
 class Principal extends Component {
@@ -30,6 +30,12 @@ class Principal extends Component {
             valorGastoTxt: '',
             mesAtual: this.ShowCurrentDate()
         };
+
+        this.fonteDadosGastos = new ListView.DataSource({
+            rowHasChanged: (r1, r2) => r1 !== r2
+        });
+
+        
     }
 
     ShowCurrentDate = () => {
@@ -48,22 +54,40 @@ class Principal extends Component {
         this.fonteDadosGastos = ds.cloneWithRows(gastos);
     }
 
-    componentWillMount() {
-        this.props.gastosFetch();
-        this.preencheListViewGasto(this.props.dadosGastos);
-        this.getRendaFromDatabase();
-
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.preencheListViewGasto(nextProps.dadosGastos);
-    }
+    // UNSAFE_componentWillMount() {
+    //     console.log('Principal - componentWillMount');
+    //     this.props.gastosFetch();
+    //     this.preencheListViewGasto(this.props.dadosGastos);
+    //     this.getRendaFromDatabase();
+    // }
 
     componentDidMount() {
-        BackHandler.addEventListener('hardwareBackPress', () => {
-            BackHandler.exitApp();
-        });
+        this.props.gastosFetch();
+        //this.fonteDadosGastos.cloneWithRows(this.props.dadosGastos);
+        this.getRendaFromDatabase(); 
     }
+
+    static getDerivedStateFromProps(nextProps, prevState){
+        if(nextProps.dadosGastos!==prevState.dadosGastos){
+            return { dadosGastos: nextProps.dadosGastos}
+        }
+
+        return null;
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if(prevProps.dadosGastos !== this.props.dadosGastos) {
+            //prevProps.gastosFetch();
+            //this.preencheListViewGasto(prevProps.dadosGastos);
+            this.fonteDadosGastos =  this.fonteDadosGastos.cloneWithRows(this.props.dadosGastos);
+            console.log('componentDidUpdate',this.fonteDadosGastos);
+            console.log('this.props',this.props);
+        }
+    }
+
+    // componentWillReceiveProps(nextProps) {
+    //     this.preencheListViewGasto(nextProps.dadosGastos);
+    // }
      
     setInputDialog(isVisible) {
         this.setState({ isDialogVisible: isVisible });
@@ -79,13 +103,11 @@ class Principal extends Component {
           const value = await AsyncStorage.getItem('uid');
           if (value !== null) {
             // We have data!!
-            console.log(value);
             //Actions.principal();
             return value;
           }
         } catch (error) {
             // Error retrieving data
-            console.log(error);
         }
     }
 
@@ -115,18 +137,15 @@ class Principal extends Component {
         const { currentUser } = firebase.auth();
 
         const emailB64 = b64.encode(currentUser.email);  
+
+        const ano = new Date().getFullYear();
          
-        firebase.database().ref(`/usuarios/${emailB64}/`)
+        firebase.database().ref(`/gastos/${emailB64}/${this.ShowCurrentDate()}/${ano}/renda/`)
         .on('value', snapshot => {
             
             let rendaFixa = _.map(snapshot.val(), (val, uid) => {
                 return { ...val, uid};
             });
-
-            console.log(rendaFixa);
-
-            
-
             this.setState({ rendaFixa: parseFloat(rendaFixa[0].renda).toFixed(2) });
         });
     }
@@ -135,23 +154,27 @@ class Principal extends Component {
         const { currentUser } = firebase.auth();
 
         const emailB64 = b64.encode(currentUser.email);
+        const ano = new Date().getFullYear();
 
-        firebase.database().ref(`/usuarios/${emailB64}/`)
+        firebase.database().ref(`/gastos/${emailB64}/${this.ShowCurrentDate()}/${ano}/renda/`)
         .once('value', snapshot => {
+            if(snapshot.val() !== null){
+                let rendaFixa = _.map(snapshot.val(), (val, uid) => {
+                    return { ...val, uid};
+                });
+                firebase.database().ref(`/gastos/${emailB64}/${this.ShowCurrentDate()}/${ano}/renda/${rendaFixa[0].uid}/`)
+                            .update({renda: renda})
+                            .then(value => this.setInputDialog(false));  
+            }else {
+                firebase.database().ref(`/gastos/${emailB64}/${this.ShowCurrentDate()}/${ano}/renda/`)
+                    .push({ renda });
+            }
             
-            let rendaFixa = _.map(snapshot.val(), (val, uid) => {
-                return { ...val, uid};
-            });
-
-
-            firebase.database().ref(`/usuarios/${emailB64}/${rendaFixa[0].uid}`)
-                        .update({renda: renda})
-                        .then(value => this.setInputDialog(false));  
+            
         });
     }
 
     inserirGasto(descricaoGastoTxt, valorGastoTxt){
-        //console.log(descricaoGastoTxt + " " + valorGastoTxt);
         const date = new Date();
 
         let dataHora = date.getDate();
@@ -164,7 +187,7 @@ class Principal extends Component {
         const year = new Date().getFullYear();
 
          const emailUsuarioB64 = b64.encode(firebase.auth().currentUser.email);
-         firebase.database().ref(`/gastos/${emailUsuarioB64}/${this.state.mesAtual}/${year}`)
+         firebase.database().ref(`/gastos/${emailUsuarioB64}/${this.state.mesAtual}/${year}/gastos/`)
              .push({ descricao: descricaoGastoTxt, valor: valorGastoTxt, dataHora })
              .then(() => {
                 this.setState({ isDialogVisibleSaldo: false, descricaoGastoTxt: '', valorGastoTxt: '' });
@@ -220,12 +243,21 @@ class Principal extends Component {
                             {this.state.mesAtual}
                         </Text>
                     </View>
-                    <View style={{ justifyContent: 'center', height: 50, marginRight: 15 }}>
+                    <View style={{ height: 50, marginRight: 15, flexDirection: 'row' }}>
+                        <TouchableHighlight
+                            onPress={() => { alert('App do grupo de TCC que só tem pau no cu _)_')}}
+                            underlayColor="#ddd"
+                        >
+                        <Text 
+                            style={{ color: '#fff', fontSize: 18}}
+                        >
+                            ?
+                        </Text>
+                        </TouchableHighlight>
                         <TouchableHighlight
                             onPress={() => { firebase.auth().signOut().then(() => {
                                 Actions.login();
-                            });
-                            }}
+                            })}}
                             underlayColor="#ddd"
                         >
                         <Text 
@@ -240,7 +272,7 @@ class Principal extends Component {
                     {this.alertInputSaldo()}
                     {/* Caixa para digitar renda fixa */}
                     <DialogInput isDialogVisible={this.state.isDialogVisible}
-                        title={"ISpent"}
+                        title={"Gefine"}
                         message={"Defina uma renda fixa mensal:"}
                         hintInput ={"digite aqui..."}
                         submitInput={ (inputText) => {this.updateRenda(inputText); } }
@@ -320,7 +352,7 @@ class Principal extends Component {
                         </View>
                         <View>
                             <TouchableHighlight
-                            onPress={() => {Actions.gastosMeses({ title: this.state.mesAtual })}}
+                            onPress={() => {Actions.gastosMeses({ title: this.state.mesAtual, rendaFixa: this.state.rendaFixa })}}
                             underlayColor="#ddd"
                             style={{ backgroundColor: "#50c4eb", padding: 10,borderRadius: 3}}
                             >
@@ -405,8 +437,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => {
-    
-    let dadosGastos = _.map(state.AppReducer, (val, uid) => {
+
+    let dadosGastos = _.map(state.AppReducer.dadosGastos, (val, uid) => {
         return { ...val, uid};
     });
 
@@ -415,4 +447,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps, { gastosFetch })(Principal);
+export default connect(mapStateToProps, { gastosFetch, logOutApp })(Principal);

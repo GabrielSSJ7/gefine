@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { historicoMeses } from '../actions/AppActions';
 import { Actions } from 'react-native-router-flux';
 
 class GastosMeses extends Component {
@@ -18,13 +17,8 @@ class GastosMeses extends Component {
              monthNames:["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho","Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
         }
     }
-    componentWillMount(){
-        //this.props.historicoMeses();
+    componentWillMount() {
         this.criaFonteDeDados(this.state.monthNames);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        //this.criaFonteDeDados(nextProps.Meses);
     }
 
     criaFonteDeDados( meses ) {
@@ -37,7 +31,7 @@ class GastosMeses extends Component {
         return(
             <TouchableHighlight 
                 underlayColor="#aaa"
-                onPress={()=>{ Actions.mes({ title: mes, mes }) }}
+                onPress={()=>{ Actions.anos({ title: mes, mes, rendaFixa: this.props.rendaFixa }) }}
             >
             <View style={{ flex: 1, borderBottomWidth: 1, borderBottomColor: '#aaa'}}>
                 <Text style={{fontSize: 22, marginLeft: 10, padding: 15}}>{mes}</Text>
@@ -69,4 +63,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps, { historicoMeses })(GastosMeses);
+export default connect(mapStateToProps, null)(GastosMeses);

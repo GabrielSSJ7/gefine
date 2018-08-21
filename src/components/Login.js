@@ -61,7 +61,8 @@ class Login extends Component {
                     <TextInput 
                         placeholder="E-mail"
                         onChangeText={texto => this.props.modificaEmailCadastro(texto)}
-                        style={{ fontSize: 20, height: 45}} />
+                        style={{ fontSize: 20, height: 45}}
+                        value={this.props.email} />
 
                     <TextInput 
                         secureTextEntry={true}
@@ -93,11 +94,14 @@ class Login extends Component {
     }
 }
 
-const mapsStateToProps = state => ({
-    autenticar_usuario_txt_erro: state.AutenticacaoReducer.autenticar_usuario_txt_erro,
-    email: state.AutenticacaoReducer.email,
-    senha: state.AutenticacaoReducer.senha,
-    login_em_andamento: state.AutenticacaoReducer.login_em_andamento
-});
+const mapsStateToProps = state => {
+    console.log(state);
+    return {
+        autenticar_usuario_txt_erro: state.AutenticacaoReducer.autenticar_usuario_txt_erro,
+        email: state.AutenticacaoReducer.email,
+        senha: state.AutenticacaoReducer.senha,
+        login_em_andamento: state.AutenticacaoReducer.login_em_andamento
+    }
+}
 
 export default connect(mapsStateToProps, {autenticarUsuario, modificaEmailCadastro, modificaSenhaCadastro})(Login);

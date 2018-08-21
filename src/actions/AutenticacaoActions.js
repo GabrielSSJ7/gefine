@@ -36,6 +36,8 @@ export const modificaSenhaCadastro = texto => (
     }
 );
 
+
+
 export const cadastrarUsuario = ({ nome, email, senha }) => {
     return dispatch => {
         dispatch({

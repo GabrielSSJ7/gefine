@@ -20,6 +20,7 @@ export default class SplashScreen extends Component {
         return (
         <View style={{ justifyContent: 'center', flex: 1, alignItems: 'center', backgroundColor: '#fff'}}>
             <Image source={require("../images/Gefine.png")} style={{width: 150, height: 150}} />
+            <Text style={{ fontSize: 25, color: '#fff'}}>Gefine</Text>
             <ActivityIndicator size="large" />
         </View>
         );
