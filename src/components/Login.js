@@ -6,7 +6,8 @@ import {
     TouchableHighlight,
     Text,
     ActivityIndicator,
-    Image
+    Image,
+    KeyboardAvoidingView 
 } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
@@ -23,6 +24,7 @@ class Login extends Component {
 
         this.state = { erro: '' }
     }
+    
     _autenticarUsuario() {
         const { email, senha } = this.props;
 
@@ -49,14 +51,15 @@ class Login extends Component {
     }
 
     render() {
-        return(
-            <View style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
-
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 65 }}>
-                    <Image source={require("../images/Gefine.png")} style={{width: 150, height: 150}} />
-                    <Text style={{ fontSize: 24, color: '#000'}}>Gefine</Text>
+        return( 
+            <View  
+                style={{  flex: 1, padding: 20, backgroundColor: '#fff' }}
+                >
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 55 }}>
+                    <Text style={{ fontSize: 19, color: '#000', alignSelf: 'center'}}>Gefine</Text>    
+                    <Image source={require("../images/Gefine.png")} style={{width: 120, height: 120}} />
+                                    
                 </View>
-
                 <View style={{ flex: 2, justifyContent: 'center' }}>
                     <TextInput 
                         placeholder="E-mail"

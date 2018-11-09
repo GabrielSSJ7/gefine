@@ -4,11 +4,14 @@ import firebase from 'firebase';
 import { Actions } from 'react-native-router-flux';
 
 export default class SplashScreen extends Component {
-    componentWillMount() {
+
+    componentDidMount() {
+
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
               // User is signed in.
+              this.setState({isLogged: true});
               Actions.principal();
             } else {
               Actions.login();

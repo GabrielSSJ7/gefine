@@ -4,7 +4,8 @@ import {
     View,
     ListView,
     TouchableHighlight,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
 import { connect } from 'react-redux';
 import firebase from 'firebase';
@@ -20,6 +21,7 @@ class Anos extends Component {
         super(props);
 
         this.state = {rendaFixa: 0, dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})}  
+        
     }
     
 
@@ -27,6 +29,8 @@ class Anos extends Component {
         this.props.anosFetch(this.props.mes);
         this.getRendaFromDatabase();
         //this.criaFonteDeDados(this.props.anos);
+        console.log('didMount');
+        BackHandler.removeEventListener('hardwareBackPress',() => this.unExitApp());
     }
 
     static getDerivedStateFromProps(nextProps, prevState){
@@ -81,7 +85,7 @@ class Anos extends Component {
         console.log('renderRow');
         const tamanho = data.length;
         let total = 0;
-        for(let x = 0; x < data[0].length-1; x++){
+        for(let x = 0; x < data[0].length; x++){
             total += parseFloat(data[0][x].valor);
         }
         const porcentagemGasto = total*100/this.state.rendaFixa;
